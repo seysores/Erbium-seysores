@@ -263,12 +263,6 @@ void GUI::Init()
                 SelectedUI = 0;
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem("Other"))
-            {
-                SelectedUI = 3;
-                ImGui::EndTabItem();
-			}
-
             // only after launching is done
             if (gsStatus != NotReady)
             {
@@ -285,9 +279,19 @@ void GUI::Init()
                         SelectedUI = 2;
                         ImGui::EndTabItem();
                     }
+
+                    if (ImGui::BeginTabItem("Other"))
+                    {
+                        SelectedUI = 3;
+                        ImGui::EndTabItem();
+                    }
                 }
+                if (ImGui::BeginTabItem("Destroy"))
+                {
+                    SelectedUI = 9;
+                    ImGui::EndTabItem();
 
-
+                }
                 if (ImGui::BeginTabItem("Dump"))
                 {
                     SelectedUI = 4;
@@ -298,7 +302,7 @@ void GUI::Init()
 
                 if (FConfiguration::bLateGame)
                 {
-                    if (ImGui::BeginTabItem("LG"))
+                    if (ImGui::BeginTabItem("Late Game"))
                     {
                         SelectedUI = 5;
                         ImGui::EndTabItem();
@@ -351,7 +355,6 @@ void GUI::Init()
                 ImGui::EndChild();
                 ImGui::Spacing();
             }
-
             if (gsStatus <= Joinable)
                 ImGui::Checkbox("Lategame", &FConfiguration::bLateGame);
 
@@ -367,7 +370,6 @@ void GUI::Init()
                 else
                     UKismetSystemLibrary::ExecuteConsoleCommand(UWorld::GetWorld(), FString(L"startaircraft"), nullptr);
             }
-
             ImGui::SetNextItemWidth(220 * main_scale);
             ImGui::InputText("##ConsoleCmd", commandBuffer, 1024);
 
@@ -464,8 +466,11 @@ void GUI::Init()
 
             ImGui::SliderInt("Siphon Amount:", &FConfiguration::SiphonAmount, 50, 200);
             ImGui::SliderInt("Tick Rate:", &FConfiguration::MaxTickRate, 30, 360);
-
-            if (ImGui::Button("Reset Builds"))
+            break;
+        case 9:
+            if (ImGui::Button("Destroy Builds"))
+                ImGui::Separator();
+                ImGui::BulletText("Will destroy all player builds.");
             {
                 TArray<ABuildingSMActor*> Builds;
                 Utils::GetAll<ABuildingSMActor>(Builds);
@@ -478,6 +483,8 @@ void GUI::Init()
             }
 
             if (ImGui::Button("Destroy Floor Loot"))
+				ImGui::Separator();
+                ImGui::BulletText("Will remove any dropped items.");
             {
                 TArray<AFortPickupAthena*> Pickups;
                 Utils::GetAll<AFortPickupAthena>(Pickups);
@@ -492,6 +499,7 @@ void GUI::Init()
             static auto PlaylistClass = UFortPlaylistAthena::StaticClass();
 
             if (ImGui::Button("Dump Items"))
+
             {
                 std::stringstream ss;
 
@@ -540,6 +548,9 @@ void GUI::Init()
                 of.close();
             }
             else if (PlaylistClass && ImGui::Button("Dump Playlists"))
+                ImGui::Separator();
+                ImGui::Spacing();
+                ImGui::BulletText("Will dump to the Win64 Folder.");
             {
                 std::stringstream ss;
 
