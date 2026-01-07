@@ -478,9 +478,17 @@ void GUI::Init()
                 TArray<ABuildingSMActor*> Builds;
                 Utils::GetAll<ABuildingSMActor>(Builds);
 
-                for (auto& Build : Builds)
-                    if (Build->bPlayerPlaced)
-                        Build->K2_DestroyActor();
+                for (auto* Build : Builds)
+                {
+                    if (!Build)
+                        continue;
+
+					// fix mad annoying crash lol
+                    if (!Build->bPlayerPlaced)
+                        continue;
+
+                    Build->K2_DestroyActor();
+                }
 
                 Builds.Free();
             }
