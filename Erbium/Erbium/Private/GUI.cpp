@@ -244,6 +244,7 @@ void GUI::Init()
         int SelectedUI = 0;
         int hasEvent = 0;
 
+        // check events once
         if (hasEvent == 0)
         {
             hasEvent = 1;
@@ -253,8 +254,10 @@ void GUI::Init()
                     continue;
 
                 hasEvent = 2;
+                break; // found a valid event
             }
         }
+
         if (ImGui::BeginTabBar(""))
         {
             // always visible
@@ -263,6 +266,14 @@ void GUI::Init()
                 SelectedUI = 0;
                 ImGui::EndTabItem();
             }
+
+            // always visible, not nested under StartedMatch
+            if (ImGui::BeginTabItem("Other"))
+            {
+                SelectedUI = 3;
+                ImGui::EndTabItem();
+            }
+
             // only after launching is done
             if (gsStatus != NotReady)
             {
@@ -279,26 +290,19 @@ void GUI::Init()
                         SelectedUI = 2;
                         ImGui::EndTabItem();
                     }
-
-                    if (ImGui::BeginTabItem("Other"))
-                    {
-                        SelectedUI = 3;
-                        ImGui::EndTabItem();
-                    }
                 }
+
                 if (ImGui::BeginTabItem("Destroy"))
                 {
                     SelectedUI = 9;
                     ImGui::EndTabItem();
-
                 }
+
                 if (ImGui::BeginTabItem("Dump"))
                 {
                     SelectedUI = 4;
                     ImGui::EndTabItem();
-                
                 }
-
 
                 if (FConfiguration::bLateGame)
                 {
@@ -312,7 +316,6 @@ void GUI::Init()
 
             ImGui::EndTabBar();
         }
-
 
         static char commandBuffer[1024] = { 0 };
         auto GameMode = UWorld::GetWorld() ? (AFortGameMode*)UWorld::GetWorld()->AuthorityGameMode : nullptr;
@@ -357,6 +360,7 @@ void GUI::Init()
             }
             if (gsStatus <= Joinable)
                 ImGui::Checkbox("Lategame", &FConfiguration::bLateGame);
+                ImGui::SliderInt("Tick Rate:", &FConfiguration::MaxTickRate, 30, 360);
 
             if (gsStatus == Joinable && ImGui::Button("Start Bus"))
             {
@@ -464,14 +468,13 @@ void GUI::Init()
             ImGui::Checkbox("Infinite Ammo", &FConfiguration::bInfiniteAmmo);
             ImGui::Checkbox("Keep Inventory", &FConfiguration::bKeepInventory);
 
-            ImGui::SliderInt("Siphon Amount:", &FConfiguration::SiphonAmount, 50, 200);
-            ImGui::SliderInt("Tick Rate:", &FConfiguration::MaxTickRate, 30, 360);
             break;
         case 9:
             if (ImGui::Button("Destroy Builds"))
+            {
                 ImGui::Separator();
                 ImGui::BulletText("Will destroy all player builds.");
-            {
+
                 TArray<ABuildingSMActor*> Builds;
                 Utils::GetAll<ABuildingSMActor>(Builds);
 
@@ -483,9 +486,10 @@ void GUI::Init()
             }
 
             if (ImGui::Button("Destroy Floor Loot"))
+            {
 				ImGui::Separator();
                 ImGui::BulletText("Will remove any dropped items.");
-            {
+
                 TArray<AFortPickupAthena*> Pickups;
                 Utils::GetAll<AFortPickupAthena>(Pickups);
 
@@ -548,10 +552,11 @@ void GUI::Init()
                 of.close();
             }
             else if (PlaylistClass && ImGui::Button("Dump Playlists"))
+            {
                 ImGui::Separator();
                 ImGui::Spacing();
                 ImGui::BulletText("Will dump to the Win64 Folder.");
-            {
+
                 std::stringstream ss;
 
                 ss << "Generated with Erbium (https://github.com/plooshi/Erbium)\n";
@@ -593,6 +598,7 @@ void GUI::Init()
 
             ImGui::Text("Zone Phase settings:");
             ImGui::Spacing();
+            ImGui::SliderInt("Siphon Amount:", &FConfiguration::SiphonAmount, 50, 200);
             ImGui::SliderInt("Zone phase", &FConfiguration::LateGameZone, 1, 7); // pahse 7 is playeble ig
             // fix / not use Long Zones for pre-s13 so from 11.00 to 13.30
             if (VersionInfo.FortniteVersion < 11 || VersionInfo.FortniteVersion > 13.30)
